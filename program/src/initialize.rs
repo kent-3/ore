@@ -4,7 +4,7 @@ use steel::*;
 /// Initializes the program.
 pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> ProgramResult {
     // Load accounts.
-    let [signer_info, board_info, config_info, mint_info, treasury_info, treasury_tokens_info, system_program, token_program, associated_token_program] =
+    let [signer_info, board_info, config_info, mint_info, round_info, treasury_info, treasury_tokens_info, system_program, token_program, associated_token_program] =
         accounts
     else {
         return Err(ProgramError::NotEnoughAccountKeys);
@@ -13,6 +13,7 @@ pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> Program
     board_info.has_seeds(&[BOARD], &ore_api::ID)?;
     config_info.has_seeds(&[CONFIG], &ore_api::ID)?;
     mint_info.has_address(&MINT_ADDRESS)?.as_mint()?;
+    round_info.has_seeds(&[ROUND, &0u64.to_le_bytes()], &ore_api::ID)?;
     treasury_info.has_seeds(&[TREASURY], &ore_api::ID)?;
     treasury_tokens_info.has_address(&treasury_tokens_address())?;
     system_program.is_program(&system_program::ID)?;
@@ -54,6 +55,32 @@ pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> Program
         config.buffer = 0;
     } else {
         config_info.as_account::<Config>(&ore_api::ID)?;
+    }
+
+    // Create round 0 account.
+    if round_info.data_is_empty() {
+        create_program_account::<Round>(
+            round_info,
+            system_program,
+            signer_info,
+            &ore_api::ID,
+            &[ROUND, &0u64.to_le_bytes()],
+        )?;
+        let round = round_info.as_account_mut::<Round>(&ore_api::ID)?;
+        round.id = 0;
+        round.deployed = [0; 25];
+        round.slot_hash = [0; 32];
+        round.count = [0; 25];
+        round.expires_at = u64::MAX;
+        round.rent_payer = *signer_info.key;
+        round.motherlode = 0;
+        round.top_miner = Pubkey::default();
+        round.top_miner_reward = 0;
+        round.total_deployed = 0;
+        round.total_vaulted = 0;
+        round.total_winnings = 0;
+    } else {
+        round_info.as_account::<Round>(&ore_api::ID)?;
     }
 
     // Create treasury account.

@@ -3,7 +3,7 @@ use ore_api::prelude::*;
 use solana_program::{keccak, log::sol_log, pubkey};
 use steel::*;
 
-pub const ORE_VAR_ADDRESS: Pubkey = pubkey!("BWCaDY96Xe4WkFq1M7UiCCRcChsJ3p51L5KrGzhxgm2E");
+pub const ORE_VAR_ADDRESS: Pubkey = pubkey!("4ELSL414g6eNTgcJeZ8Md1nXPJE2F4WSEPjbJ5PVS1L5");
 
 /// Pays out the winners and block reward.
 pub fn process_reset(accounts: &[AccountInfo<'_>], _data: &[u8]) -> ProgramResult {

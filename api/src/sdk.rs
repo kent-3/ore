@@ -13,6 +13,7 @@ pub fn initialize(signer: Pubkey) -> Instruction {
     let board_address = board_pda().0;
     let config_address = config_pda().0;
     let mint_address = MINT_ADDRESS;
+    let round_address = round_pda(0).0;
     let treasury_address = TREASURY_ADDRESS;
     let treasury_tokens_address = treasury_tokens_address();
     Instruction {
@@ -22,6 +23,7 @@ pub fn initialize(signer: Pubkey) -> Instruction {
             AccountMeta::new(board_address, false),
             AccountMeta::new(config_address, false),
             AccountMeta::new(mint_address, false),
+            AccountMeta::new(round_address, false),
             AccountMeta::new(treasury_address, false),
             AccountMeta::new(treasury_tokens_address, false),
             AccountMeta::new_readonly(system_program::ID, false),
