@@ -32,7 +32,7 @@ pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> Program
         let board = board_info.as_account_mut::<Board>(&ore_api::ID)?;
         board.round_id = 0;
         board.start_slot = 0;
-        board.end_slot = 0;
+        board.end_slot = u64::MAX;
     } else {
         board_info.as_account::<Board>(&ore_api::ID)?;
     }
@@ -56,32 +56,6 @@ pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> Program
     } else {
         config_info.as_account::<Config>(&ore_api::ID)?;
     }
-
-    // Create round 0 account.
-    // if round_info.data_is_empty() {
-    //     create_program_account::<Round>(
-    //         round_info,
-    //         system_program,
-    //         signer_info,
-    //         &ore_api::ID,
-    //         &[ROUND, &0u64.to_le_bytes()],
-    //     )?;
-    //     let round = round_info.as_account_mut::<Round>(&ore_api::ID)?;
-    //     round.id = 0;
-    //     round.deployed = [0; 25];
-    //     round.slot_hash = [0; 32];
-    //     round.count = [0; 25];
-    //     round.expires_at = u64::MAX;
-    //     round.rent_payer = *signer_info.key;
-    //     round.motherlode = 0;
-    //     round.top_miner = Pubkey::default();
-    //     round.top_miner_reward = 0;
-    //     round.total_deployed = 0;
-    //     round.total_vaulted = 0;
-    //     round.total_winnings = 0;
-    // } else {
-    //     round_info.as_account::<Round>(&ore_api::ID)?;
-    // }
 
     // Create treasury account.
     if treasury_info.data_is_empty() {
