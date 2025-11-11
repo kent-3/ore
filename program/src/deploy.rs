@@ -29,7 +29,7 @@ pub fn process_deploy(accounts: &[AccountInfo<'_>], data: &[u8]) -> ProgramResul
         .has_seeds(&[AUTOMATION, &authority_info.key.to_bytes()], &ore_api::ID)?;
     let board = board_info
         .as_account_mut::<Board>(&ore_api::ID)?
-        .assert_mut(|b| b.end_slot == u64::MAX || (clock.slot >= b.start_slot && clock.slot < b.end_slot))?;
+        .assert_mut(|b| clock.slot >= b.start_slot && clock.slot < b.end_slot)?;
     let round = round_info
         .as_account_mut::<Round>(&ore_api::ID)?
         .assert_mut(|r| r.id == board.round_id)?;
@@ -55,11 +55,10 @@ pub fn process_deploy(accounts: &[AccountInfo<'_>], data: &[u8]) -> ProgramResul
         entropy_program.is_program(&entropy_api::ID)?;
 
         // Bump var to the next value.
-        // IMPORTANT: Use ore_api::ID because Board PDA is derived from ORE program, not Entropy
         invoke_signed(
             &entropy_api::sdk::next(*board_info.key, *var_info.key, board.end_slot),
             &[board_info.clone(), var_info.clone()],
-            &ore_api::ID,  // Board PDA is owned by ORE program
+            &entropy_api::ID,
             &[BOARD],
         )?;
     }

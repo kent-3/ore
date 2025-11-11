@@ -4,7 +4,6 @@ use steel::*;
 /// Initializes the program.
 pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> ProgramResult {
     // Load accounts.
-    let clock = Clock::get()?;
     let [signer_info, board_info, config_info, mint_info, round_info, treasury_info, treasury_tokens_info, system_program, token_program, associated_token_program] =
         accounts
     else {
@@ -32,10 +31,8 @@ pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> Program
         )?;
         let board = board_info.as_account_mut::<Board>(&ore_api::ID)?;
         board.round_id = 0;
-        // Set reasonable start/end times for initial round
-        // This ensures NewVar creates a Var with a reachable end_at
-        board.start_slot = clock.slot;
-        board.end_slot = clock.slot + 300;  // 300 slots (~2 minutes) for initial setup
+        board.start_slot = 0;
+        board.end_slot = 0;
     } else {
         board_info.as_account::<Board>(&ore_api::ID)?;
     }
@@ -61,30 +58,30 @@ pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> Program
     }
 
     // Create round 0 account.
-    if round_info.data_is_empty() {
-        create_program_account::<Round>(
-            round_info,
-            system_program,
-            signer_info,
-            &ore_api::ID,
-            &[ROUND, &0u64.to_le_bytes()],
-        )?;
-        let round = round_info.as_account_mut::<Round>(&ore_api::ID)?;
-        round.id = 0;
-        round.deployed = [0; 25];
-        round.slot_hash = [0; 32];
-        round.count = [0; 25];
-        round.expires_at = u64::MAX;
-        round.rent_payer = *signer_info.key;
-        round.motherlode = 0;
-        round.top_miner = Pubkey::default();
-        round.top_miner_reward = 0;
-        round.total_deployed = 0;
-        round.total_vaulted = 0;
-        round.total_winnings = 0;
-    } else {
-        round_info.as_account::<Round>(&ore_api::ID)?;
-    }
+    // if round_info.data_is_empty() {
+    //     create_program_account::<Round>(
+    //         round_info,
+    //         system_program,
+    //         signer_info,
+    //         &ore_api::ID,
+    //         &[ROUND, &0u64.to_le_bytes()],
+    //     )?;
+    //     let round = round_info.as_account_mut::<Round>(&ore_api::ID)?;
+    //     round.id = 0;
+    //     round.deployed = [0; 25];
+    //     round.slot_hash = [0; 32];
+    //     round.count = [0; 25];
+    //     round.expires_at = u64::MAX;
+    //     round.rent_payer = *signer_info.key;
+    //     round.motherlode = 0;
+    //     round.top_miner = Pubkey::default();
+    //     round.top_miner_reward = 0;
+    //     round.total_deployed = 0;
+    //     round.total_vaulted = 0;
+    //     round.total_winnings = 0;
+    // } else {
+    //     round_info.as_account::<Round>(&ore_api::ID)?;
+    // }
 
     // Create treasury account.
     if treasury_info.data_is_empty() {
@@ -97,12 +94,6 @@ pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> Program
         )?;
         let treasury = treasury_info.as_account_mut::<Treasury>(&ore_api::ID)?;
         treasury.balance = 0;
-        treasury.motherlode = 0;
-        treasury.miner_rewards_factor = Numeric::from_u64(0);
-        treasury.stake_rewards_factor = Numeric::from_u64(0);
-        treasury.total_staked = 0;
-        treasury.total_unclaimed = 0;
-        treasury.total_refined = 0;
     } else {
         treasury_info.as_account::<Treasury>(&ore_api::ID)?;
     }
