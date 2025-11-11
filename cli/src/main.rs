@@ -104,6 +104,9 @@ async fn main() {
         "participating_miners" => {
             participating_miners(&rpc).await.unwrap();
         }
+        "initialize" => {
+            initialize(&rpc, &payer).await.unwrap();
+        }
         "new_var" => {
             new_var(&rpc, &payer).await.unwrap();
         }
@@ -1059,4 +1062,14 @@ where
             _ => return Err(anyhow::anyhow!("Failed to get program accounts: {}", err)),
         },
     }
+}
+
+async fn initialize(
+    rpc: &RpcClient,
+    payer: &solana_sdk::signer::keypair::Keypair,
+) -> Result<(), anyhow::Error> {
+    let ix = ore_api::sdk::initialize(payer.pubkey());
+    submit_transaction(rpc, payer, &[ix]).await?;
+    println!("Program initialized successfully!");
+    Ok(())
 }
