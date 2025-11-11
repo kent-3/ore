@@ -55,10 +55,11 @@ pub fn process_deploy(accounts: &[AccountInfo<'_>], data: &[u8]) -> ProgramResul
         entropy_program.is_program(&entropy_api::ID)?;
 
         // Bump var to the next value.
+        // IMPORTANT: Use ore_api::ID because Board PDA is derived from ORE program, not Entropy
         invoke_signed(
             &entropy_api::sdk::next(*board_info.key, *var_info.key, board.end_slot),
             &[board_info.clone(), var_info.clone()],
-            &entropy_api::ID,
+            &ore_api::ID,  // Board PDA is owned by ORE program
             &[BOARD],
         )?;
     }
