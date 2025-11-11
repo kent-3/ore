@@ -1,6 +1,7 @@
 mod automate;
 mod bury;
 mod checkpoint;
+mod initialize;
 mod claim_ore;
 mod claim_sol;
 mod claim_yield;
@@ -21,6 +22,7 @@ mod wrap;
 use automate::*;
 use bury::*;
 use checkpoint::*;
+use initialize::*;
 use claim_ore::*;
 use claim_sol::*;
 use claim_yield::*;
@@ -49,6 +51,9 @@ pub fn process_instruction(
     let (ix, data) = parse_instruction(&ore_api::ID, program_id, data)?;
 
     match ix {
+        // Admin
+        OreInstruction::Initialize => process_initialize(accounts, data)?,
+        
         // Miner
         OreInstruction::Automate => process_automate(accounts, data)?,
         OreInstruction::Checkpoint => process_checkpoint(accounts, data)?,

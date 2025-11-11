@@ -2,7 +2,7 @@ use const_crypto::ed25519;
 use solana_program::{pubkey, pubkey::Pubkey};
 
 /// The authority allowed to initialize the program.
-pub const ADMIN_ADDRESS: Pubkey = pubkey!("HBUh9g46wk2X89CvaNN15UmsznP59rh6od1h8JwYAopk");
+pub const ADMIN_ADDRESS: Pubkey = pubkey!("kent32WmsMSwBqrbB3zBgQSmeZ44uTV46Fs8gef1AzC");
 
 /// The decimal precision of the ORE token.
 /// There are 100 billion indivisible units per ORE (called "grams").

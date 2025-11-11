@@ -3,8 +3,11 @@ use steel::*;
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, TryFromPrimitive)]
 pub enum OreInstruction {
-    // Miner
+    // Admin
     Automate = 0,
+    Initialize = 1,
+    
+    // Miner
     Checkpoint = 2,
     ClaimSOL = 3,
     ClaimORE = 4,
@@ -157,7 +160,12 @@ pub struct SetSwapProgram {}
 #[derive(Clone, Copy, Debug, Pod, Zeroable)]
 pub struct SetVarAddress {}
 
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Pod, Zeroable)]
+pub struct Initialize {}
+
 instruction!(OreInstruction, Automate);
+instruction!(OreInstruction, Initialize);
 instruction!(OreInstruction, Close);
 instruction!(OreInstruction, Checkpoint);
 instruction!(OreInstruction, ClaimSOL);

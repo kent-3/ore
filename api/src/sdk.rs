@@ -8,6 +8,30 @@ use crate::{
     state::*,
 };
 
+// Admin instruction - Initialize program accounts
+pub fn initialize(signer: Pubkey) -> Instruction {
+    let board_address = board_pda().0;
+    let config_address = config_pda().0;
+    let mint_address = MINT_ADDRESS;
+    let treasury_address = TREASURY_ADDRESS;
+    let treasury_tokens_address = treasury_tokens_address();
+    Instruction {
+        program_id: crate::ID,
+        accounts: vec![
+            AccountMeta::new(signer, true),
+            AccountMeta::new(board_address, false),
+            AccountMeta::new(config_address, false),
+            AccountMeta::new(mint_address, false),
+            AccountMeta::new(treasury_address, false),
+            AccountMeta::new(treasury_tokens_address, false),
+            AccountMeta::new_readonly(system_program::ID, false),
+            AccountMeta::new_readonly(spl_token::ID, false),
+            AccountMeta::new_readonly(spl_associated_token_account::ID, false),
+        ],
+        data: Initialize {}.to_bytes(),
+    }
+}
+
 pub fn log(signer: Pubkey, msg: &[u8]) -> Instruction {
     let mut data = Log {}.to_bytes();
     data.extend_from_slice(msg);
