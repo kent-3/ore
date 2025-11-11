@@ -4,6 +4,7 @@ use steel::*;
 /// Initializes the program.
 pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> ProgramResult {
     // Load accounts.
+    let clock = Clock::get()?;
     let [signer_info, board_info, config_info, mint_info, round_info, treasury_info, treasury_tokens_info, system_program, token_program, associated_token_program] =
         accounts
     else {
@@ -31,8 +32,10 @@ pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> Program
         )?;
         let board = board_info.as_account_mut::<Board>(&ore_api::ID)?;
         board.round_id = 0;
-        board.start_slot = u64::MAX;
-        board.end_slot = u64::MAX;
+        // Set reasonable start/end times for initial round
+        // This ensures NewVar creates a Var with a reachable end_at
+        board.start_slot = clock.slot;
+        board.end_slot = clock.slot + 300;  // 300 slots (~2 minutes) for initial setup
     } else {
         board_info.as_account::<Board>(&ore_api::ID)?;
     }
