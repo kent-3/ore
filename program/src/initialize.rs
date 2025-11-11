@@ -57,6 +57,23 @@ pub fn process_initialize(accounts: &[AccountInfo<'_>], _data: &[u8]) -> Program
         config_info.as_account::<Config>(&ore_api::ID)?;
     }
 
+    // Create round 0 account.
+    if round_info.data_is_empty() {
+        create_program_account::<Round>(
+            round_info,
+            system_program,
+            signer_info,
+            &ore_api::ID,
+            &[ROUND, &0u64.to_le_bytes()],
+        )?;
+        let round = round_info.as_account_mut::<Round>(&ore_api::ID)?;
+        // All fields default to 0 except:
+        round.expires_at = u64::MAX; // Signal: waiting for first deploy
+        round.rent_payer = *signer_info.key;
+    } else {
+        round_info.as_account::<Round>(&ore_api::ID)?;
+    }
+
     // Create treasury account.
     if treasury_info.data_is_empty() {
         create_program_account::<Treasury>(
