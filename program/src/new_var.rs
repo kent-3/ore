@@ -39,12 +39,12 @@ pub fn process_new_var(accounts: &[AccountInfo<'_>], data: &[u8]) -> ProgramResu
         ),
         &[
             board_info.clone(),
-            signer_info.clone(),
+            signer_info.clone(),  // payer (the actual wallet that pays for the account)
             provider_info.clone(),
             var_info.clone(),
             system_program.clone(),
         ],
-        &entropy_api::ID,
+        &ore_api::ID,  // Use ORE program ID since Board PDA is derived from it
         &[BOARD],
     )?;
 

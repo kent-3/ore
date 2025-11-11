@@ -1,3 +1,7 @@
 .DS_Store
 target
 test-ledger
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
